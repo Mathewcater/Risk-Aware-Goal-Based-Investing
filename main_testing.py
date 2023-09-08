@@ -6,7 +6,6 @@ import torch as T
 from hyperparams import *
 from envs import *
 from utils import *
-from main_training import *
 from agents import *
 from scipy import stats
 np.seterr(divide='ignore', invalid='ignore')
