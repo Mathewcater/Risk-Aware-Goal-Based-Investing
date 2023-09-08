@@ -26,9 +26,6 @@ agent.Train()
 # plot RDEU through training
 ax1.plot(np.arange(algo_params["num_epochs"]) + 1, T.stack(agent.RDEU_history))
 ax1.set(xlabel='Epochs', ylabel='RDEU', title='RDEU per Epoch; Learned ANN Policy')    
-
-# visualise policy
-
     
 # term_wealth of learned strategy
 term_wealth = agent.term_wealth_dist.detach()

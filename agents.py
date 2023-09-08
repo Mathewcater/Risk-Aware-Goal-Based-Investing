@@ -102,7 +102,7 @@ class Agent():
         RM_weight = self.gamma(F_x)
         
         # constraint error term: c[X,p]= (p - (1 - F((1+c)X_0)))_+
-        constr_err = T.nn.ReLU()(p - (1 - est_cdf((1+c)*x0, batch_no_grad, h))) #*(est_cdf((1+c)*x0, batch_no_grad, h) >= 1.0 - p)  
+        constr_err = T.nn.ReLU()(p - (1 - est_cdf((1+c)*x0, batch_no_grad, h)))
         
         LM_weight = (self.lamb + self.mu*constr_err)
         grad_F_x0 = -T.mean(T.exp(Normal(0,1).log_prob((1+c)*x0 - batch_no_grad))*batch)
@@ -169,15 +169,7 @@ class Agent():
             print(f'lambda:{self.lamb}')
             if m % self.algo_params["pen_update_freq"] == 0:
                 self.update_multipliers(constr_err=T.nn.ReLU()(self.env.params["goal_prob"] - return_prob))    
-            
-            
-            lookback = min(len(self.RDEU_history), 50)
                         
             if m == self.algo_params["num_epochs"] - 1:
                 self.term_wealth_dist = term_wealth_samps 
                 self.return_prob = return_prob
-            # # The RDEU is stable if its average single step change over the last 50 steps is small
-            # RDEU_stable = (T.abs(T.mean(T.stack(self.RDEU_history)[-lookback:] - T.stack(self.loss_history)[-lookback -1 : -1])) <= 5e-15)
-            
-            # if (return_prob >= self.env.params["goal_prob"]) and RDEU_stable:
-            #     exit() 
