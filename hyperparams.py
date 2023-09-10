@@ -19,7 +19,7 @@ def init_params(market_model: str):
                 'q': 0.75, 
                 'phi' : 0.0, # transaction costs
                 'T' : 1, # trading horizon
-                'Ndt' : 1, # number of periods
+                'Ndt' : 10, # number of periods
                 'init_wealth': 100.0, # initial wealth
                 'S0': T.tensor([1.0, 1.0, 1.0]) # initial risky asset prices
                 }
@@ -29,7 +29,7 @@ def init_params(market_model: str):
     
     # parameters for the algorithm
     
-    algo_params = {'num_epochs' : 1_000, # number of iterations of entire training loop
+    algo_params = {'num_epochs' : 100, # number of iterations of entire training loop
                    'batch_size' : 250, # mini-batch size for gradient estimates
                    'num_layers': 10, # number of layer in policy network
                    'hidden_size': 16, # width of hidden layers of policy network
@@ -42,3 +42,17 @@ def init_params(market_model: str):
 
     return env_params, algo_params
 
+# print parameters for the environment and algorithm
+def print_params(envParams, algoParams):
+    print('*  Drifts: ', envParams["drifts"],
+            '\n   Volatilites: ', envParams["vols"],
+            '\n   Initial Prices: ', envParams["S0"],
+            ' Initial Interest rate: ', envParams["interest_rate"],
+            ' Initial Wealth: ', envParams["init_wealth"],
+            ' T: ', envParams["T"],
+            ' Number of periods: ', envParams["Ndt"])
+    print('*  Batch size: ', algoParams["batch_size"],
+            ' Number of epochs: ', algoParams["num_epochs"])
+    print('*  Learning Rate: ', algoParams["learn_rate"], 
+            ' Width of Hidden Layers: ', algoParams["hidden_size"],
+            ' Number of Hidden Layers: ', algoParams["num_layers"])

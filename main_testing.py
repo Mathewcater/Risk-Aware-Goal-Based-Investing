@@ -17,7 +17,8 @@ plt.rcParams.update({
 
 env_params, algo_params = init_params('Black_Scholes')
 env = BS_Environment(env_params)
-agent = Agent(env, algo_params)
+policy = PolicyANN(env, algo_params)
+agent = Agent(env, algo_params, policy)
 agent.Train()
 
 (fig1, ax1), (fig2, ax2) = plt.subplots(1, 1, sharey=True), \
@@ -26,9 +27,6 @@ agent.Train()
 # plot RDEU through training
 ax1.plot(np.arange(algo_params["num_epochs"]) + 1, T.stack(agent.RDEU_history))
 ax1.set(xlabel='Epochs', ylabel='RDEU', title='RDEU per Epoch; Learned ANN Policy')    
-
-# visualise policy
-
     
 # term_wealth of learned strategy
 term_wealth = agent.term_wealth_dist.detach().squeeze()

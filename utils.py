@@ -3,7 +3,6 @@ Misc functions
 Creation of colors and directories
 """
 # misc
-import os.path
 from matplotlib.colors import LinearSegmentedColormap
 
 
