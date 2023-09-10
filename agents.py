@@ -88,7 +88,6 @@ class Agent():
         
         # compute bandwidth of KDE using Silverman's rule.
         h = max(0.05, 1.06*(M**(-1/5))*T.std(batch_no_grad))
-        print(f'mean of batch: {T.mean(batch)}')
         
         # compute loss
         
@@ -121,33 +120,33 @@ class Agent():
     def update_multipliers(self, constr_err):
         self.lamb += self.mu*constr_err
         self.mu *= self.algo_params["pen_strength_lr"]
-        
+          
     def update_policy(self):
         
-        term_wealth_samps = []
-    
-        for _ in range(self.algo_params["batch_size"]):
+        curr_state = self.env.reset(self.algo_params["batch_size"])
+        
+        terminal_wealth = self.env.params['init_wealth'] * T.ones(self.algo_params["batch_size"], 1)
+        pi = T.zeros(self.algo_params["batch_size"], self.env.params["Ndt"], self.env.params["num_assets"])
+        
+        for i, _ in enumerate(range(self.env.params["Ndt"])):
             
-            rews = []
-            curr_state = self.env.reset()
+            # take action
+            action = self.policy(curr_state[:, :-1])
             
-            for _ in range(self.env.params["Ndt"]):
-                # take action
-                action = self.policy(curr_state[:-1])
-                
-                # get new state and reward
-                new_state, rew = self.env.step(curr_state, action) 
-                rews.append(rew)
+            # get new state and reward
+            new_state, rew = self.env.step(curr_state, action) 
             
-                # update state
-                curr_state = new_state
-                                
-            term_wealth_samps.append(T.sum(T.stack(rews)) + self.env.params['init_wealth'])
+            terminal_wealth += rew.clone()
+        
+            # update state
+            curr_state = new_state.clone()
             
-        term_wealth_samps = T.stack(term_wealth_samps)
-            
+            # store actions
+            pi[:,i,:] = action
+                            
         # perform update using mini-batch of terminal wealth samples
-        loss, RDEU, return_prob = self.compute_loss(term_wealth_samps)
+        loss, RDEU, return_prob = self.compute_loss(terminal_wealth)
+        
         self.policy.optimizer.zero_grad()
         loss.backward()
         self.policy.optimizer.step()
@@ -155,21 +154,22 @@ class Agent():
         if self.policy.scheduler.get_last_lr()[0] >= 5e-4:
             self.policy.scheduler.step()
 
-        return loss, RDEU, return_prob, term_wealth_samps
+        return loss, RDEU, return_prob, terminal_wealth, pi
 
     def Train(self):
         
         for m in tqdm(range(self.algo_params["num_epochs"])):
             
-            # if m == self.algo_params["num_epochs"] - 1:
-            #     self.algo_params["batch_size"] = 2000
+            if m == self.algo_params["num_epochs"] - 1:
+                self.algo_params["batch_size"] = 10_000
                 
-            loss, RDEU, return_prob, term_wealth_samps = self.update_policy() # update policy 
+            loss, RDEU, return_prob, term_wealth_samps, pi = self.update_policy() # update policy 
             self.update_history(loss, RDEU, return_prob) # store loss and RDEU to track training
-
+            
             if m % self.algo_params["pen_update_freq"] == 0:
                 self.update_multipliers(constr_err=T.nn.ReLU()(self.env.params["goal_prob"] - return_prob))    
-                        
+                                    
             if m == self.algo_params["num_epochs"] - 1:
                 self.term_wealth_dist = term_wealth_samps 
                 self.return_prob = return_prob
+                self.pi = pi

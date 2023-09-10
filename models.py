@@ -67,4 +67,4 @@ class PolicyANN(nn.Module):
         
         action = self.layer_out(action)
         
-        return Softmax(dim=0)(action)
+        return Softmax(dim=-1)(action)

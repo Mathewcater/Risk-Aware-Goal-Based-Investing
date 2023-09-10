@@ -14,11 +14,11 @@ plt.rcParams.update({
     "font.family": "Palatino"
 })
 
+
 env_params, algo_params = init_params('Black_Scholes')
 env = BS_Environment(env_params)
 agent = Agent(env, algo_params)
 agent.Train()
-
 
 (fig1, ax1), (fig2, ax2) = plt.subplots(1, 1, sharey=True), \
                            plt.subplots(1, 1, sharey=True)   
@@ -26,9 +26,12 @@ agent.Train()
 # plot RDEU through training
 ax1.plot(np.arange(algo_params["num_epochs"]) + 1, T.stack(agent.RDEU_history))
 ax1.set(xlabel='Epochs', ylabel='RDEU', title='RDEU per Epoch; Learned ANN Policy')    
+
+# visualise policy
+
     
 # term_wealth of learned strategy
-term_wealth = agent.term_wealth_dist.detach()
+term_wealth = agent.term_wealth_dist.detach().squeeze()
 mean_term_wealth, std_term_wealth = T.mean(term_wealth), T.std(term_wealth)
 num_bins = 50
 domain = np.linspace(mean_term_wealth - 5*std_term_wealth, mean_term_wealth + 5*std_term_wealth, 1500)
@@ -40,5 +43,4 @@ ax2.plot(domain, term_wealth_kde(domain))
 # check if constraint satisfied
 c = env_params["returns_req"]
 print(f'Probability of returns exceeding {100*c}%: {agent.return_prob}')
-
 plt.show() 
