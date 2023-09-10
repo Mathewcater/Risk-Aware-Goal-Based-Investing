@@ -88,7 +88,7 @@ class Agent():
         
         # compute bandwidth of KDE using Silverman's rule.
         h = max(0.05, 1.06*(M**(-1/5))*T.std(batch_no_grad))
-        print(f'batch: {batch}')
+        print(f'mean of batch: {T.mean(batch)}')
         
         # compute loss
         
@@ -161,12 +161,12 @@ class Agent():
         
         for m in tqdm(range(self.algo_params["num_epochs"])):
             
-            if m == self.algo_params["num_epochs"] - 1:
-                self.algo_params["batch_size"] = 2_000
+            # if m == self.algo_params["num_epochs"] - 1:
+            #     self.algo_params["batch_size"] = 2000
                 
             loss, RDEU, return_prob, term_wealth_samps = self.update_policy() # update policy 
             self.update_history(loss, RDEU, return_prob) # store loss and RDEU to track training
-            print(f'lambda:{self.lamb}')
+
             if m % self.algo_params["pen_update_freq"] == 0:
                 self.update_multipliers(constr_err=T.nn.ReLU()(self.env.params["goal_prob"] - return_prob))    
                         

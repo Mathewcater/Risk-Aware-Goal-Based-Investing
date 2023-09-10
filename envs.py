@@ -14,13 +14,6 @@ class BS_Environment:
     def __init__(self, params: dict):
         # parameters and spaces
         self.params = params
-        # self.spaces = {'s1_space' : np.linspace(self.S0[0] * T.exp( (self.mu[0] - 0.5 * self.sigma[0]**2)*self.T + self.sigma[0]*np.sqrt(self.T)*(-4) ),
-        #                                         self.S0[0] * T.exp( (self.mu[0] - 0.5 * self.sigma[0]**2)*self.T + self.sigma[0]*np.sqrt(self.T)*(4) ), 21),
-        #               's2_space' : np.linspace(self.S0[1] * T.exp( (self.mu[1] - 0.5 * self.sigma[1]**2)*self.T + self.sigma[1]*np.sqrt(self.T)*(-3) ),
-        #                                         self.S0[1] * T.exp( (self.mu[1] - 0.5 * self.sigma[1]**2)*self.T + self.sigma[1]*np.sqrt(self.T)*(3) ), 21),
-        #               's3_space' : np.linspace(self.S0[2] * T.exp( (self.mu[2] - 0.5 * self.sigma[2]**2)*self.T + self.sigma[2]*np.sqrt(self.T)*(-3) ),
-        #                                         self.S0[2] * T.exp( (self.mu[2] - 0.5 * self.sigma[2]**2)*self.T + self.sigma[2]*np.sqrt(self.T)*(3) ), 21),
-        #               'action_space' : np.linspace(0.0, 1.0, 21)}
         self.cholesky = T.linalg.cholesky(self.params["cov_matrix"])
         self.dt = self.params["T"]/self.params["Ndt"]
         

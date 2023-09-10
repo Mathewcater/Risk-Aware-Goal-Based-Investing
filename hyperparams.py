@@ -27,6 +27,9 @@ def init_params(market_model: str):
     if market_model == 'SABR':
         pass
     
+    if market_model == 'SIR-CEV':
+        pass
+    
     # parameters for the algorithm
     
     algo_params = {'num_epochs' : 3, # number of iterations of entire training loop
