@@ -8,7 +8,7 @@ def init_params(market_model: str):
     # parameters for the model                                         
     if market_model == 'Black_Scholes':
         env_params = {'num_assets' : 3, # number of total assets in market (risk-free and risky)
-                'vols' : T.tensor([0.02, 0.03]), # volatilities of risky assets
+                'vols' : T.tensor([0.09, 0.03]), # volatilities of risky assets
                 'drifts' : T.tensor([0.08, 0.05]), # drifts of risky assets
                 'cov_matrix' : T.tensor([[1.0, 0.3], [0.3, 1.0]]), # covariance structure of risky asset prices
                 'returns_req' : 0.05, # returns requirement for goal
@@ -56,3 +56,6 @@ def print_params(envParams, algoParams):
     print('*  Learning Rate: ', algoParams["learn_rate"], 
             ' Width of Hidden Layers: ', algoParams["hidden_size"],
             ' Number of Hidden Layers: ', algoParams["num_layers"])
+    
+if __name__ == '__main__':
+    a,b = init_params("BS_")

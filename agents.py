@@ -35,9 +35,13 @@ def GetGradient(batch, h):
 # agent class 
 class Agent():
     
-    def __init__(self, env, algo_params, policy):
+    def __init__(self, env, algo_params, policy=None):
+        if policy == None:
+            self.policy = PolicyANN(env, algo_params)
+        else:
+            self.policy = policy 
+        
         self.env = env
-        self.policy = policy 
         self.algo_params = algo_params
         self.lamb = algo_params["init_lamb"]
         self.mu = algo_params["init_mu"]
@@ -164,7 +168,7 @@ class Agent():
 
         return loss, RDEU, return_prob, terminal_wealth, pi
 
-    def Train(self):
+    def Train(self, Nsims=10_000):
         """Main training loop.
         """
         for m in tqdm(range(self.algo_params["num_epochs"])):
@@ -172,7 +176,7 @@ class Agent():
             # at final epoch of training, store probability of meeting goal, distribution of term. wealth and 
             # position history over final mini-batch
             if m == self.algo_params["num_epochs"] - 1:
-                self.algo_params["batch_size"] = 10_000
+                self.algo_params["batch_size"] = Nsims
                 
                 # update policy     
                 _, _, return_prob, term_wealth_samps, pi = self.update_policy() 
