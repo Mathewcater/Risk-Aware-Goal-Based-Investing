@@ -14,8 +14,10 @@ plt.rcParams.update({
     "font.family": "Palatino"
 })
 
+T.random.manual_seed(4321)
 
-env_params, algo_params = init_params('Black_Scholes')
+
+env_params, algo_params = init_params('BS')
 env = BS_Environment(env_params)
 policy = PolicyANN(env, algo_params)
 agent = Agent(env, algo_params, policy)
@@ -33,12 +35,19 @@ term_wealth = agent.term_wealth_dist.detach().squeeze()
 mean_term_wealth, std_term_wealth = T.mean(term_wealth), T.std(term_wealth)
 num_bins = 50
 domain = np.linspace(mean_term_wealth - 5*std_term_wealth, mean_term_wealth + 5*std_term_wealth, 1500)
-term_wealth_kde = stats.gaussian_kde(term_wealth)
-ax2.hist(term_wealth, density=True, bins=num_bins, color = colors[0], alpha=0.5)
+
+if std_term_wealth >= 0.01:
+    term_wealth_kde = stats.gaussian_kde(term_wealth)
+    ax2.plot(domain, term_wealth_kde(domain))
+    
+ax2.hist(term_wealth, density=True, bins=num_bins, color=colors[0], alpha=0.5)
 ax2.set(title=r'Distribution of Terminal Wealth', xlabel=r'Terminal Wealth: $X^{\theta}$', ylabel='Density')
-ax2.plot(domain, term_wealth_kde(domain))
 
 # check if constraint satisfied
 c = env_params["returns_req"]
 print(f'Probability of returns exceeding {100*c}%: {agent.return_prob}')
+
+# print position history
+print(agent.position_history.detach())
+
 plt.show() 

@@ -182,7 +182,7 @@ class Agent():
                 _, _, return_prob, term_wealth_samps, pi = self.update_policy() 
                 self.term_wealth_dist = term_wealth_samps 
                 self.return_prob = return_prob
-                self.pi = pi
+                self.position_history = pi
             
             else:
                 # update policy     
@@ -190,5 +190,4 @@ class Agent():
                 
                 # update Lagrange multipliers
                 if m % self.algo_params["pen_update_freq"] == 0:
-                    self.update_multipliers(constr_err=ReLU()(self.env.params["goal_prob"] 
-                                                              - return_prob))    
+                    self.update_multipliers(constr_err=ReLU()(self.env.params["goal_prob"] - return_prob))    

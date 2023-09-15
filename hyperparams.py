@@ -4,29 +4,45 @@ Initialization of all hyperparameters
 """
 import torch as T
 # initialize parameters for the environment and algorithm
-def init_params(market_model: str):
+def init_params(market_model: str, num_assets=3):
     # parameters for the model                                         
-    if market_model == 'Black_Scholes':
-        env_params = {'num_assets' : 3, # number of total assets in market (risk-free and risky)
-                'vols' : T.tensor([0.09, 0.03]), # volatilities of risky assets
-                'drifts' : T.tensor([0.08, 0.05]), # drifts of risky assets
-                'cov_matrix' : T.tensor([[1.0, 0.3], [0.3, 1.0]]), # covariance structure of risky asset prices
+    if market_model == 'BS':
+        env_params = {'num_assets' : num_assets, # number of total assets in market (risk-free and risky)
+                'drifts' : T.tensor([0.03, 0.09]), # drifts of risky assets
+                'vols' : T.tensor([0.06, 0.18]), # volatilities of risky assets
+                'corr_matrix' : T.tensor([[1.0, 0.3], [0.3, 1.0]]), # correlation structure of risky asset prices
                 'returns_req' : 0.05, # returns requirement for goal
                 'goal_prob' : 0.95, # confidence level of meeting returns requirement 
-                'interest_rate': 0.025, # interest rate of risk-free asset
+                'interest_rate': 0.05, # interest rate of risk-free asset
                 'alpha': 0.1,
                 'beta': 0.9, 
                 'q': 0.75, 
                 'phi' : 0.0, # transaction costs
-                'T' : 1, # trading horizon
+                'T' : 1.0, # trading horizon
                 'Ndt' : 10, # number of periods
-                'init_wealth': 100.0, # initial wealth
+                'init_wealth': 1.0, # initial wealth
                 'S0': T.tensor([1.0, 1.0, 1.0]) # initial risky asset prices
                 }
     
-    if market_model == 'SABR':
-        pass
-    
+    if market_model == 'Factor':
+        
+        env_params = {'num_assets' : num_assets, # number of total assets in market (risk-free and risky)
+                'systemic_var': 0.02**2, # variance of systemic factor
+                'idio_means': T.tensor([0.03*i for i in range(1, num_assets)]), # means of idiosyncratic factors
+                'idio_vars': T.tensor([(0.025)**2 * (i**2) for i in range(1, num_assets)]), # variances of idiosyncratic factors
+                'returns_req' : 0.05, # returns requirement for goal
+                'goal_prob' : 0.95, # confidence level of meeting returns requirement 
+                'interest_rate': 0.05, # interest rate of risk-free asset
+                'alpha': 0.1,
+                'beta': 0.9, 
+                'q': 0.75, 
+                'phi' : 0.0, # transaction costs
+                'T' : 1.0, # trading horizon
+                'Ndt' : 1, # number of periods
+                'init_wealth': 1.0, # initial wealth
+                'S0': T.tensor([1.0, 1.0, 1.0]) # initial risky asset prices
+                }
+        
     # parameters for the algorithm
     
     algo_params = {'num_epochs' : 100, # number of iterations of entire training loop
@@ -43,19 +59,33 @@ def init_params(market_model: str):
     return env_params, algo_params
 
 # print parameters for the environment and algorithm
-def print_params(envParams, algoParams):
-    print('*  Drifts: ', envParams["drifts"],
-            '\n   Volatilites: ', envParams["vols"],
-            '\n   Initial Prices: ', envParams["S0"],
-            ' Initial Interest rate: ', envParams["interest_rate"],
-            ' Initial Wealth: ', envParams["init_wealth"],
-            ' T: ', envParams["T"],
-            ' Number of periods: ', envParams["Ndt"])
-    print('*  Batch size: ', algoParams["batch_size"],
-            ' Number of epochs: ', algoParams["num_epochs"])
-    print('*  Learning Rate: ', algoParams["learn_rate"], 
-            ' Width of Hidden Layers: ', algoParams["hidden_size"],
-            ' Number of Hidden Layers: ', algoParams["num_layers"])
+def print_params(envParams, algoParams, market_model):
     
-if __name__ == '__main__':
-    a,b = init_params("BS_")
+    if market_model == 'BS':
+        print('*  Drifts: ', envParams["drifts"],
+                '\n   Volatilites: ', envParams["vols"],
+                '\n   Risky Asset Correlation: ', envParams["corr_matrix"][0][1],
+                '\n   Initial Prices: ', envParams["S0"],
+                '\n   Initial Interest rate: ', envParams["interest_rate"],
+                '\n   Initial Wealth: ', envParams["init_wealth"],
+                '\n   T: ', envParams["T"],
+                '\n   Number of periods: ', envParams["Ndt"])
+        print('*  Batch size: ', algoParams["batch_size"],
+                '\n   Number of epochs: ', algoParams["num_epochs"],
+                '\n   Learning Rate: ', algoParams["learn_rate"], 
+                '\n   Width of Hidden Layers: ', algoParams["hidden_size"],
+                '\n   Number of Hidden Layers: ', algoParams["num_layers"])
+        
+    if market_model == 'Factor':
+        print('*  Means of Idiosyncratic Factors: ', envParams["idio_means"],
+                '\n   Variances of Idiosyncratic Factors: ', envParams["idio_vars"],
+                '\n   Initial Prices: ', envParams["S0"])
+        print('*  Initial Interest rate: ', envParams["interest_rate"],
+                '\n   Initial Wealth: ', envParams["init_wealth"],
+                '\n   T: ', envParams["T"],
+                '\n   Number of periods: ', envParams["Ndt"])
+        print('*  Batch size: ', algoParams["batch_size"],
+                '\n   Number of epochs: ', algoParams["num_epochs"],
+                '\n   Learning Rate: ', algoParams["learn_rate"], 
+                '\n   Width of Hidden Layers: ', algoParams["hidden_size"],
+                '\n   Number of Hidden Layers: ', algoParams["num_layers"])
