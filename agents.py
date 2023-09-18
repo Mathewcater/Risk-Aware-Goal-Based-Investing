@@ -185,7 +185,7 @@ class Agent():
             
             else:
                 # update policy     
-                _, _, return_prob, term_wealth_samps, pi = self.update_policy() 
+                _, _, return_prob, _, _ = self.update_policy() 
                 
                 # update Lagrange multipliers
                 if m % self.algo_params["pen_update_freq"] == 0:

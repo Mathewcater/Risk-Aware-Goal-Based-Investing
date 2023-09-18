@@ -14,5 +14,5 @@ mpurple = (0.5804,0.2157,0.9412)
 mgray = (0.5012,0.5012,0.5012)
 myellow = (0.8,0.8,0)
 mwhite = (1.,1.,1.)
-cmap = LinearSegmentedColormap.from_list('beamer_cmap', [mred, mwhite, mblue])
+cmap = LinearSegmentedColormap.from_list('beamer_cmap', [mwhite, mred])
 colors = [mblue, mred, mgreen, myellow, mpurple, mgray]
