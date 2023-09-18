@@ -18,18 +18,6 @@ def est_cdf(x, X, h):
     
     return (1/len(X))*T.sum(Normal(0,1).cdf((x - X)/h))
     
-def GetGradient(batch, h):
-    """Calculate the pdf and the gradient of the distribution function of X^0
-    """
-    
-    batch_no_grad = batch.detach()
-    normal = T.distributions.Normal(0,1)
-    z_score = (batch_no_grad.reshape(1, -1) - batch_no_grad.reshape(-1, 1))/h
-    f_x = T.mean(T.exp(normal.log_prob(z_score)), axis = 0)/h
-    grad_F_x = -T.mean(T.exp(normal.log_prob(z_score))*batch.reshape(-1,1), axis = 0)/h 
-
-    return f_x, grad_F_x
-
 #################################################################################
 
 # agent class 
@@ -81,6 +69,21 @@ class Agent():
         
         return (-1.0)*T.dot(values, (1/len_partition)*T.ones(len_partition))
     
+    def GetGradient(self, batch, h):
+        """Calculate the pdf and the gradient of the distribution function of X^0
+        """
+        c, x0 = self.env.params["returns_req"], self.env.params["init_wealth"]
+        batch_no_grad = batch.detach()
+        normal = T.distributions.Normal(0,1)
+        z_score = (batch_no_grad.reshape(1, -1) - batch_no_grad.reshape(-1, 1)) / h
+        f_x = T.mean(T.exp(normal.log_prob(z_score)), axis = 0) / h
+        grad_F_x = -T.mean(T.exp(normal.log_prob(z_score))*batch.reshape(-1,1), axis = 0) / h 
+        grad_F_x0 = -T.mean(T.exp(normal.log_prob(((1+c)*x0 - batch_no_grad) / h )) * batch) / h
+        F_x = T.mean(normal.cdf(z_score / h), axis = 0)
+        F_c = T.mean(normal.cdf( ( ((1+c)*x0*T.ones(batch_no_grad.shape[0])).reshape(-1,1) - batch_no_grad.reshape(1,-1) ) / h))
+        
+        return f_x, F_x, F_c, grad_F_x, grad_F_x0
+
     def compute_loss(self, batch):
         """Compute estimate of augmented Lagrangian from mini-batch of terminal wealth samples.
         """
@@ -90,30 +93,26 @@ class Agent():
                         self.env.params["init_wealth"], self.env.params["goal_prob"]   
         
         # compute bandwidth of KDE using Silverman's rule.
-        h = max(0.01, 1.06*(M**(-1/5))*T.std(batch_no_grad))
-        
+        h =  1.0e-3  #max(1.0e-3, 1.06*(M**(-1/5))*T.std(batch_no_grad))
+
         # compute loss
         
-        # distribution function evaluated at mini-batch
-        F_x = T.stack([est_cdf(x, batch_no_grad, h) for x in batch_no_grad])
-        
-        # gradient of distribution function and pdf each evaluated at mini-batch
-        f_x, grad_F_x = GetGradient(batch, h) 
+        # gradient of distribution function, pdf each evaluated at mini-batch
+        # and distribution function evaluated at mini-batcha and (1+c)X_0.
+        f_x, F_x, F_c, grad_F_x, grad_F_x0 = self.GetGradient(batch, h) 
         
         # risk measure weight
         RM_weight = self.gamma(F_x)
         
         # constraint error term: c[X,p]= (p - (1 - F((1+c)X_0)))_+
         constr_err = ReLU()(p - (1 - est_cdf((1+c)*x0, batch_no_grad, h)))
-        
-        LM_weight = (self.lamb + self.mu*constr_err)
-        grad_F_x0 = -T.mean(T.exp(Normal(0,1).log_prob((1+c)*x0 - batch_no_grad))*batch)
+        LM_weight = (self.lamb + self.mu*constr_err)*(F_c >= 1 - p) 
         
         # compute loss
         loss = T.mean(RM_weight*(grad_F_x/f_x)) + LM_weight*grad_F_x0
         
         # probability of meeting goal        
-        return_prob = 1.0 - est_cdf((1+c)*x0, batch_no_grad, h) 
+        return_prob = 1.0 - F_c
         
         # risk of strategy
         RDEU = self.est_RDEU(batch_no_grad)
@@ -139,7 +138,7 @@ class Agent():
             
             # take action
             action = self.policy(curr_state[:, :-1])
-            
+                  
             # get new state and reward
             new_state, rew = self.env.step(curr_state, action) 
             

@@ -14,7 +14,7 @@ plt.rcParams.update({
     "font.family": "Palatino"
 })
 
-T.random.manual_seed(4321)
+T.random.manual_seed(54321)
 
 
 env_params, algo_params = init_params('BS')
@@ -49,5 +49,7 @@ print(f'Probability of returns exceeding {100*c}%: {agent.return_prob}')
 
 # print position history
 print(agent.position_history.detach())
+print(term_wealth.unique() )
 
+plt.savefig("dist_wealth.png")
 plt.show() 

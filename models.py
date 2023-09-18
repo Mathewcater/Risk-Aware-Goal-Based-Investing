@@ -54,11 +54,11 @@ class PolicyANN(nn.Module):
     def forward(self, x):
         
         y = x.clone()
-
+        
         # normalize features with environment parameters
         y[0] = y[0] / self.env.params["Ndt"] # time
-        y[...,1:(1+len(self.env.params['S0']))] = (y[...,1:(1+len(self.env.params['S0']))] / T.tensor(self.env.params['S0'])) - 1.0
-            
+        y[...,1:(1+len(self.env.params['S0']))] = ((y[...,1:(1+len(self.env.params['S0']))] / T.tensor(self.env.params['S0']))) - 1.0
+        
         # output of input layer 
         action = silu(self.layer_in(x))
     

@@ -11,15 +11,15 @@ def init_params(market_model: str, num_assets=3):
                 'drifts' : T.tensor([0.03, 0.09]), # drifts of risky assets
                 'vols' : T.tensor([0.06, 0.18]), # volatilities of risky assets
                 'corr_matrix' : T.tensor([[1.0, 0.3], [0.3, 1.0]]), # correlation structure of risky asset prices
+                'interest_rate': 0.025, # interest rate of risk-free asset                
+                'goal_prob' : 0.35, # confidence level of meeting returns requirement 
                 'returns_req' : 0.05, # returns requirement for goal
-                'goal_prob' : 0.95, # confidence level of meeting returns requirement 
-                'interest_rate': 0.05, # interest rate of risk-free asset
                 'alpha': 0.1,
                 'beta': 0.9, 
                 'q': 0.75, 
                 'phi' : 0.0, # transaction costs
                 'T' : 1.0, # trading horizon
-                'Ndt' : 10, # number of periods
+                'Ndt' : 1, # number of periods
                 'init_wealth': 1.0, # initial wealth
                 'S0': T.tensor([1.0, 1.0, 1.0]) # initial risky asset prices
                 }
@@ -33,9 +33,9 @@ def init_params(market_model: str, num_assets=3):
                 'returns_req' : 0.05, # returns requirement for goal
                 'goal_prob' : 0.95, # confidence level of meeting returns requirement 
                 'interest_rate': 0.05, # interest rate of risk-free asset
-                'alpha': 0.1,
+                'alpha': 0.99,
                 'beta': 0.9, 
-                'q': 0.75, 
+                'q': 1.0, 
                 'phi' : 0.0, # transaction costs
                 'T' : 1.0, # trading horizon
                 'Ndt' : 1, # number of periods
@@ -45,11 +45,11 @@ def init_params(market_model: str, num_assets=3):
         
     # parameters for the algorithm
     
-    algo_params = {'num_epochs' : 100, # number of iterations of entire training loop
-                   'batch_size' : 250, # mini-batch size for gradient estimates
+    algo_params = {'num_epochs' : 1_000, # number of iterations of entire training loop
+                   'batch_size' : 750, # mini-batch size for gradient estimates
                    'num_layers': 10, # number of layer in policy network
                    'hidden_size': 16, # width of hidden layers of policy network
-                   'learn_rate': 0.1, # learning rate of policy network
+                   'learn_rate': 0.001, # learning rate of policy network
                    'init_lamb' : 1.0, # initial Lagrange multiplier    
                    'init_mu' : 10.0, # initial penalty strength
                    'pen_strength_lr' : 1.5, # penalty strength learning rate
