@@ -16,7 +16,6 @@ plt.rcParams.update({
 
 T.random.manual_seed(54321)
 
-
 env_params, algo_params = init_params('BS')
 env = BS_Environment(env_params)
 policy = PolicyANN(env, algo_params)
@@ -36,7 +35,7 @@ mean_term_wealth, std_term_wealth = T.mean(term_wealth), T.std(term_wealth)
 num_bins = 50
 domain = np.linspace(mean_term_wealth - 5*std_term_wealth, mean_term_wealth + 5*std_term_wealth, 1500)
 
-if std_term_wealth >= 0.01:
+if std_term_wealth >= 1.0e-5:
     term_wealth_kde = stats.gaussian_kde(term_wealth)
     ax2.plot(domain, term_wealth_kde(domain))
     

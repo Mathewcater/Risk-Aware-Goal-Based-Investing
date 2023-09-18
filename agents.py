@@ -92,8 +92,8 @@ class Agent():
         M, c, x0, p = self.algo_params["batch_size"], self.env.params["returns_req"], \
                         self.env.params["init_wealth"], self.env.params["goal_prob"]   
         
-        # compute bandwidth of KDE using Silverman's rule.
-        h =  1.0e-3  #max(1.0e-3, 1.06*(M**(-1/5))*T.std(batch_no_grad))
+        # compute bandwidth of KDE using Silverman's rule divided by 2.
+        h = max(1.0e-3, 0.5*1.06*(M**(-1/5))*T.std(batch_no_grad))
 
         # compute loss
         
@@ -105,7 +105,7 @@ class Agent():
         RM_weight = self.gamma(F_x)
         
         # constraint error term: c[X,p]= (p - (1 - F((1+c)X_0)))_+
-        constr_err = ReLU()(p - (1 - est_cdf((1+c)*x0, batch_no_grad, h)))
+        constr_err = ReLU()(p - (1 - F_c))
         LM_weight = (self.lamb + self.mu*constr_err)*(F_c >= 1 - p) 
         
         # compute loss

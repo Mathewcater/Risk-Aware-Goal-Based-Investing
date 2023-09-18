@@ -4,22 +4,22 @@ Initialization of all hyperparameters
 """
 import torch as T
 # initialize parameters for the environment and algorithm
-def init_params(market_model: str, num_assets=3):
+def init_params(market_model: str, num_assets=4):
     # parameters for the model                                         
     if market_model == 'BS':
-        env_params = {'num_assets' : num_assets, # number of total assets in market (risk-free and risky)
-                'drifts' : T.tensor([0.03, 0.09]), # drifts of risky assets
-                'vols' : T.tensor([0.06, 0.18]), # volatilities of risky assets
-                'corr_matrix' : T.tensor([[1.0, 0.3], [0.3, 1.0]]), # correlation structure of risky asset prices
+        env_params = {'num_assets': num_assets, # number of total assets in market (risk-free and risky)
+                'drifts': T.tensor([0.03, 0.06, 0.09]), # drifts of risky assets
+                'vols': T.tensor([0.06, 0.12, 0.18]), # volatilities of risky assets
+                'corr_matrix': T.tensor([[1.0, 0.2, 0.2], [0.2, 1.0, 0.2], [0.2, 0.2, 1.0]]), # correlation structure of risky asset prices
                 'interest_rate': 0.025, # interest rate of risk-free asset                
-                'goal_prob' : 0.35, # confidence level of meeting returns requirement 
-                'returns_req' : 0.05, # returns requirement for goal
+                'goal_prob': 0.75, # confidence level of meeting returns requirement 
+                'returns_req': 0.05, # returns requirement for goal
                 'alpha': 0.1,
                 'beta': 0.9, 
                 'q': 0.75, 
-                'phi' : 0.0, # transaction costs
-                'T' : 1.0, # trading horizon
-                'Ndt' : 1, # number of periods
+                'phi': 0.0, # transaction costs
+                'T': 1.0, # trading horizon
+                'Ndt': 1, # number of periods
                 'init_wealth': 1.0, # initial wealth
                 'S0': T.tensor([1.0, 1.0, 1.0]) # initial risky asset prices
                 }
