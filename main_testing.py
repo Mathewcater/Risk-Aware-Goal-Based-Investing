@@ -48,7 +48,5 @@ print(f'Probability of returns exceeding {100*c}%: {agent.return_prob}')
 
 # print position history
 print(agent.position_history.detach())
-print(term_wealth.unique() )
-
-plt.savefig("dist_wealth.png")
+print(term_wealth.unique())
 plt.show() 
