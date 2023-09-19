@@ -4,7 +4,6 @@ Market models
 # imports
 import numpy as np
 import torch as T
-from hyperparams import *
 from torch.distributions.uniform import Uniform
 from torch.distributions.multivariate_normal import MultivariateNormal
 import pdb
