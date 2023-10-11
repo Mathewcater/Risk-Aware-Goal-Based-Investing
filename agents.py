@@ -167,7 +167,7 @@ class Agent():
 
         return loss, RDEU, return_prob, terminal_wealth, pi
 
-    def Train(self, Nsims=10_000):
+    def Train(self, Nsims=15_000):
         """Main training loop.
         """
         for m in tqdm(range(self.algo_params["num_epochs"])):
